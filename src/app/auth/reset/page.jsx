@@ -1,18 +1,34 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { T } from "@/lib/design-tokens";
 
 export default function ResetPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+  const supabase = createClient();
 
   const handleReset = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: implement Supabase password reset
-    setTimeout(() => { setSent(true); setLoading(false); }, 1000);
+    setError("");
+
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/auth/update-password`,
+    });
+
+    if (resetError) {
+      setError(resetError.message);
+      setLoading(false);
+      return;
+    }
+
+    setSent(true);
+    setLoading(false);
   };
 
   return (
@@ -36,14 +52,16 @@ export default function ResetPage() {
             <p style={{ fontSize: 13, color: T.textSec, marginBottom: 24, fontFamily: T.font }}>
               We hebben een reset-link verstuurd naar {email}. Controleer uw inbox.
             </p>
-            <a href="/auth/login" style={{ display: "block", textAlign: "center", padding: "10px", borderRadius: 8, background: T.accent, color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 500, fontFamily: T.font }}>
+            <Link href="/auth/login" style={{ display: "block", textAlign: "center", padding: "10px", borderRadius: 8, background: T.accent, color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 500, fontFamily: T.font }}>
               Terug naar inloggen
-            </a>
+            </Link>
           </>
         ) : (
           <>
             <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 4, fontFamily: T.font }}>Wachtwoord resetten</h2>
             <p style={{ fontSize: 13, color: T.textSec, marginBottom: 24, fontFamily: T.font }}>Voer uw e-mailadres in voor een reset-link</p>
+
+            {error && <div style={{ background: T.dangerBg, color: T.dangerText, padding: "10px 14px", borderRadius: 8, fontSize: 13, marginBottom: 16, fontFamily: T.font }}>{error}</div>}
 
             <form onSubmit={handleReset}>
               <div style={{ marginBottom: 24 }}>
@@ -58,7 +76,7 @@ export default function ResetPage() {
             </form>
 
             <div style={{ textAlign: "center", marginTop: 20, fontSize: 12, fontFamily: T.font, color: T.textSec }}>
-              <a href="/auth/login" style={{ color: T.accent, textDecoration: "none" }}>Terug naar inloggen</a>
+              <Link href="/auth/login" style={{ color: T.accent, textDecoration: "none" }}>Terug naar inloggen</Link>
             </div>
           </>
         )}

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { T } from "@/lib/design-tokens";
 
 export default function LoginPage() {
@@ -8,13 +11,35 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
+  const supabase = createClient();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    // TODO: implement Supabase auth
-    setTimeout(() => setLoading(false), 1000);
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      if (authError.message === "Invalid login credentials") {
+        setError("Ongeldige inloggegevens. Controleer uw e-mail en wachtwoord.");
+      } else if (authError.message.includes("Email not confirmed")) {
+        setError("E-mailadres nog niet bevestigd. Controleer uw inbox.");
+      } else if (authError.message.includes("Too many requests")) {
+        setError("Te veel inlogpogingen. Probeer het over enkele minuten opnieuw.");
+      } else {
+        setError(authError.message);
+      }
+      setLoading(false);
+      return;
+    }
+
+    router.push("/");
+    router.refresh();
   };
 
   return (
@@ -55,8 +80,8 @@ export default function LoginPage() {
         </form>
 
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 20, fontSize: 12 }}>
-          <a href="/auth/reset" style={{ color: T.accent, textDecoration: "none", fontFamily: T.font }}>Wachtwoord vergeten?</a>
-          <a href="/auth/register" style={{ color: T.accent, textDecoration: "none", fontFamily: T.font }}>Account aanmaken</a>
+          <Link href="/auth/reset" style={{ color: T.accent, textDecoration: "none", fontFamily: T.font }}>Wachtwoord vergeten?</Link>
+          <Link href="/auth/register" style={{ color: T.accent, textDecoration: "none", fontFamily: T.font }}>Account aanmaken</Link>
         </div>
       </div>
     </div>
