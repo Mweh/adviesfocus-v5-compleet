@@ -1,10 +1,9 @@
-import "@/app/globals.css";
-import Sidebar from "@/components/Sidebar";
+"use client";
 
-export const metadata = {
-  title: "AdviesFocus v5 — Demo",
-  description: "AdviesFocus pensioenadvies platform",
-};
+import "@/app/globals.css";
+import { usePathname } from "next/navigation";
+import { AuthProvider } from "@/components/AuthProvider";
+import Sidebar from "@/components/Sidebar";
 
 export default function RootLayout({ children }) {
   return (
@@ -18,11 +17,26 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <div style={{ display: "flex", height: "100vh" }}>
-          <Sidebar />
-          <main style={{ flex: 1, overflow: "auto", background: "#f7f6f3" }}>{children}</main>
-        </div>
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
+  );
+}
+
+function AppShell({ children }) {
+  const pathname = usePathname();
+  const isAuthPage = pathname?.startsWith("/auth");
+
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
+
+  return (
+    <div style={{ display: "flex", height: "100vh" }}>
+      <Sidebar />
+      <main style={{ flex: 1, overflow: "auto", background: "#f7f6f3" }}>{children}</main>
+    </div>
   );
 }

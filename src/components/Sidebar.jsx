@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
 import { T } from "@/lib/design-tokens";
 
 const MODULES = [
@@ -23,6 +24,11 @@ const MODULES = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const { user, signOut } = useAuth();
+
+  const userInitials = user?.user_metadata?.naam
+    ? user.user_metadata.naam.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("")
+    : user?.email?.slice(0, 2).toUpperCase() ?? "??";
 
   return (
     <aside
@@ -109,18 +115,93 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Footer */}
+      {/* User footer */}
       <div
         style={{
           padding: collapsed ? "12px 0" : "12px 14px",
           borderTop: `0.5px solid ${T.borderSec}`,
-          fontSize: 10,
-          color: T.textTer,
-          textAlign: collapsed ? "center" : "left",
-          fontFamily: T.font,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: collapsed ? "center" : "space-between",
+          gap: 10,
         }}
       >
-        {!collapsed && "Demo Kantoor · Pro"}
+        {user && !collapsed && (
+          <>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: `${T.accent}22`,
+                  color: T.accent,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: `0.5px solid ${T.accent}44`,
+                  fontFamily: T.font,
+                  flexShrink: 0,
+                }}
+              >
+                {userInitials}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 500, color: T.text, fontFamily: T.font, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {user.user_metadata?.naam || user.email?.split("@")[0]}
+                </div>
+                <div style={{ fontSize: 10, color: T.textTer, fontFamily: T.font, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {user.email}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={signOut}
+              title="Uitloggen"
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                border: `1px solid ${T.border}`,
+                background: "transparent",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 14,
+                color: T.textSec,
+                flexShrink: 0,
+              }}
+            >
+              ↩
+            </button>
+          </>
+        )}
+        {user && collapsed && (
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              background: `${T.accent}22`,
+              color: T.accent,
+              fontSize: 11,
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: `0.5px solid ${T.accent}44`,
+              fontFamily: T.font,
+            }}
+          >
+            {userInitials}
+          </div>
+        )}
+        {!user && !collapsed && (
+          <div style={{ fontSize: 10, color: T.textTer, fontFamily: T.font }}>Niet ingelogd</div>
+        )}
       </div>
     </aside>
   );

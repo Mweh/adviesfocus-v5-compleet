@@ -1,5 +1,26 @@
+# Dependencies
 node_modules
-dist
+
+# Next.js
 .next
+out
+
+# Build
+dist
+
+# Environment
 .env.local
 .env*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel
