@@ -2,19 +2,17 @@
   "name": "adviesfocus-v5-compleet",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
+    "next": "^14.2.29",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "recharts": "^2.15.3"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.5.2",
-    "vite": "^6.3.5"
+    "recharts": "^2.15.3",
+    "@supabase/supabase-js": "^2.49.4",
+    "@supabase/ssr": "^0.6.1"
   }
 }
